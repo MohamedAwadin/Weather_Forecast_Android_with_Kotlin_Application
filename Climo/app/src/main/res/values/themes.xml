@@ -5,5 +5,7 @@
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
     </style>
 
-    <style name="Theme.Climo" parent="Base.Theme.Climo" />
+    <style name="Theme.Climo" parent="Base.Theme.Climo" >
+         <item name="android:windowTranslucentNavigation">true</item>
+    </style>
 </resources>
