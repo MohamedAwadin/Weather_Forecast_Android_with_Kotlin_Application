@@ -4,7 +4,7 @@ import retrofit2.http.GET
 import retrofit2.http.Query
 
 interface WeatherApi {
-    @GET("weather")
+    @GET("data/2.5/weather")
     suspend fun getCurrentWeather(
         @Query("lat") lat: Double,
         @Query("lon") lon: Double,
@@ -12,7 +12,7 @@ interface WeatherApi {
         @Query("units") units: String
     ): CurrentWeatherResponse
 
-    @GET("forecast/hourly")
+    @GET("data/2.5/forecast/hourly")
     suspend fun getHourlyForecast(
         @Query("lat") lat: Double,
         @Query("lon") lon: Double,
@@ -20,7 +20,7 @@ interface WeatherApi {
         @Query("units") units: String
     ): HourlyForecastResponse
 
-    @GET("forecast/daily")
+    @GET("data/2.5/forecast/daily")
     suspend fun getDailyForecast(
         @Query("lat") lat: Double,
         @Query("lon") lon: Double,
@@ -33,6 +33,13 @@ interface WeatherApi {
     suspend fun getGeocoding(
         @Query("q") cityName: String,
         @Query("limit") limit: Int = 5,
+        @Query("appid") apiKey: String
+    ): List<GeocodingResponse>
+    @GET("geo/1.0/reverse")
+    suspend fun getReverseGeocoding(
+        @Query("lat") lat: Double,
+        @Query("lon") lon: Double,
+        @Query("limit") limit: Int = 1,
         @Query("appid") apiKey: String
     ): List<GeocodingResponse>
 }

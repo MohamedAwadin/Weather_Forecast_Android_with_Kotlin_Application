@@ -1,6 +1,5 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/gredient_backgound">
@@ -9,21 +8,68 @@
         android:id="@+id/weatherView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:visibility="gone"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent" />
 
     <androidx.cardview.widget.CardView
+        android:id="@+id/permissionRequestCard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:visibility="gone"
+        app:cardBackgroundColor="#ffffff"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:gravity="center">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Location Permission Required"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#000000" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Please allow location access to display weather data for your current location."
+                android:textSize="16sp"
+                android:textColor="#666666"
+                android:gravity="center" />
+
+            <Button
+                android:id="@+id/allowButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:backgroundTint="#75b4e3"
+                android:text="Allow"
+                android:textColor="#ffffff" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
         android:id="@+id/currentWeatherCard"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
+        android:visibility="gone"
         android:background="@drawable/gredient_background_banner"
         app:cardPreventCornerOverlap="false"
         app:cardUseCompatPadding="false"
         app:cardCornerRadius="20dp"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:layout_editor_absoluteX="16dp">
+        app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
             android:background="@drawable/gredient_background_banner"
@@ -33,24 +79,30 @@
             android:padding="16dp">
 
             <TextView
+                android:id="@+id/locationName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20sp"
+                android:textColor="#ffffff" />
+
+            <TextView
                 android:id="@+id/currentTemp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="1234"
-                android:textColor="@color/white"
-                android:textSize="32sp" />
+                android:textSize="32sp"
+                android:textColor="#ffffff" />
 
             <TextView
                 android:id="@+id/weatherDescription"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/white" />
+                android:textColor="#ffffff" />
 
             <TextView
                 android:id="@+id/dateTime"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/white" />
+                android:textColor="#ffffff" />
 
         </LinearLayout>
     </androidx.cardview.widget.CardView>
@@ -60,6 +112,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
+        android:visibility="gone"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintTop_toBottomOf="@id/currentWeatherCard" />
 
@@ -67,21 +120,22 @@
         android:id="@+id/dailyForecastRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:visibility="gone"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintTop_toBottomOf="@id/hourlyForecastRecyclerView"
         app:layout_constraintBottom_toTopOf="@id/weatherDetailsCard" />
 
     <androidx.cardview.widget.CardView
         android:id="@+id/weatherDetailsCard"
-        android:background="@drawable/gredient_background_banner"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
+        android:visibility="gone"
+        android:background="@drawable/gredient_background_banner"
         app:cardPreventCornerOverlap="false"
         app:cardUseCompatPadding="false"
         app:cardCornerRadius="20dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        tools:layout_editor_absoluteX="16dp">
+        app:layout_constraintBottom_toBottomOf="parent">
 
         <LinearLayout
             android:background="@drawable/gredient_background_banner"
@@ -94,31 +148,31 @@
                 android:id="@+id/pressure"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/white" />
+                android:textColor="#ffffff" />
 
             <TextView
                 android:id="@+id/humidity"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/white" />
+                android:textColor="#ffffff" />
 
             <TextView
                 android:id="@+id/windSpeed"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/white" />
+                android:textColor="#ffffff" />
 
             <TextView
                 android:id="@+id/clouds"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/white" />
+                android:textColor="#ffffff" />
 
             <TextView
                 android:id="@+id/visibility"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/white" />
+                android:textColor="#ffffff" />
 
         </LinearLayout>
     </androidx.cardview.widget.CardView>

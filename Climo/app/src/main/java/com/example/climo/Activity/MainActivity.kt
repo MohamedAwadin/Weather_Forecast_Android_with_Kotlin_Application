@@ -1,32 +1,36 @@
 package com.example.climo.Activity
 
 import android.Manifest
-import android.app.Dialog
-import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.preference.PreferenceManager
 import android.util.Log
-import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.navigation.findNavController
+import androidx.core.app.ActivityCompat
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupActionBarWithNavController
-import androidx.work.impl.model.Preference
 import com.example.climo.R
-import com.example.climo.data.model.FavoriteLocation
+import com.example.climo.data.remote.RetrofitClient
 import com.example.climo.databinding.ActivityMainBinding
 import com.example.climo.databinding.DialogInitialSetupBinding
+import com.example.climo.Activity.MapSelectionActivity
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var sharedPreferences: SharedPreferences
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,38 +38,39 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
-        if (!sharedPreferences.getBoolean("setup_complete", false)){
+        if (!sharedPreferences.getBoolean("setup_completed", false)) {
             showInitialDialog()
         }
 
         try {
-            val navHostFragment = supportFragmentManager.findFragmentById(binding.navHostFragment.id) as NavHostFragment
+            val navHostFragment =
+                supportFragmentManager.findFragmentById(binding.navHostFragment.id) as NavHostFragment
             val navController = navHostFragment.navController
             setupActionBarWithNavController(navController)
             Log.d("MainActivity", "NavController setup successful")
-        }catch (e: Exception){
+        } catch (e: Exception) {
             Log.e("MainActivity", "Error setting up NavController: $e")
         }
-
     }
 
-    private fun showInitialDialog(){
-        val Dialog_binding = DialogInitialSetupBinding.inflate(layoutInflater)
-        val dialogView= Dialog_binding.root
+    private fun showInitialDialog() {
+        val dialogBinding = DialogInitialSetupBinding.inflate(layoutInflater)
+        val dialogView = dialogBinding.root
 
         MaterialAlertDialogBuilder(this)
             .setTitle("Initial Setup")
             .setView(dialogView)
-            .setPositiveButton("Ok") { _ , _ ->
-                val locationChoice = when{
-                    Dialog_binding.gpsRadioButton.isChecked -> "gps"
-                    Dialog_binding.mapRadioButton.isChecked -> "map"
+            .setPositiveButton("Ok") { _, _ ->
+                val locationChoice = when {
+                    dialogBinding.gpsRadioButton.isChecked -> "gps"
+                    dialogBinding.mapRadioButton.isChecked -> "map"
                     else -> "gps"
                 }
-                val notificationChoice = when{
-                    Dialog_binding.enableNotificationsRadioButton.isChecked -> "enable"
-                    Dialog_binding.disableNotificationsRadioButton.isChecked -> "disable"
+                val notificationChoice = when {
+                    dialogBinding.enableNotificationsRadioButton.isChecked -> "enable"
+                    dialogBinding.disableNotificationsRadioButton.isChecked -> "disable"
                     else -> "disable"
                 }
                 with(sharedPreferences.edit()) {
@@ -74,29 +79,24 @@ class MainActivity : AppCompatActivity() {
                     putString("initial_notification_choice", notificationChoice)
                     apply()
                 }
-                handlePermissions(locationChoice , notificationChoice)
-                try {
-                    val navHostFragment = supportFragmentManager
-                        .findFragmentById(binding.navHostFragment.id) as NavHostFragment
-                    navHostFragment.navController.navigate(R.id.homeFragment)
-                } catch (e: Exception) {
-                    Log.e("MainActivity", "Navigation error: $e")
-                }
+                handlePermissions(locationChoice, notificationChoice)
             }
             .setCancelable(false)
             .show()
-        Dialog_binding.gpsRadioButton.isChecked = true
-        Dialog_binding.disableNotificationsRadioButton.isChecked = true
+
+        dialogBinding.gpsRadioButton.isChecked = true
+        dialogBinding.disableNotificationsRadioButton.isChecked = true
     }
 
-    private fun handlePermissions(locationChoice: String, notificationChoice: String){
-        when(locationChoice){
+    private fun handlePermissions(locationChoice: String, notificationChoice: String) {
+        when (locationChoice) {
             "gps" -> requestLocationPermission()
             "map" -> {
-                // later
+                val intent = Intent(this, MapSelectionActivity::class.java)
+                startActivityForResult(intent, REQUEST_MAP_SELECTION)
             }
         }
-        if (notificationChoice == "enable"){
+        if (notificationChoice == "enable") {
             requestNotificationPermission()
         }
     }
@@ -107,6 +107,8 @@ class MainActivity : AppCompatActivity() {
                 arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION),
                 REQUEST_LOCATION_PERMISSION
             )
+        } else {
+            fetchLocation()
         }
     }
 
@@ -121,27 +123,81 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun fetchLocation() {
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                android.Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+                location?.let {
+                    with(sharedPreferences.edit()) {
+                        putFloat("selected_latitude", it.latitude.toFloat())
+                        putFloat("selected_longitude", it.longitude.toFloat())
+                        apply()
+                    }
+                    fetchLocationName(it.latitude, it.longitude)
+                } ?: run {
+                    Toast.makeText(this, "Unable to fetch location", Toast.LENGTH_SHORT).show()
+                    navigateToHomeFragment()
+                }
+            }.addOnFailureListener {
+                Toast.makeText(this, "Failed to fetch location: ${it.message}", Toast.LENGTH_SHORT).show()
+                navigateToHomeFragment()
+            }
+        }
+    }
+
+    private fun fetchLocationName(lat: Double, lon: Double) {
+        CoroutineScope(Dispatchers.Main).launch {
+            try {
+                val response = withContext(Dispatchers.IO) {
+                    RetrofitClient.api.getReverseGeocoding(lat, lon, 1, "ecfe2681690524ece36e0e4818523e5f")
+                }
+                if (response.isNotEmpty()) {
+                    val locationName = response[0].name
+                    with(sharedPreferences.edit()) {
+                        putString("selected_location_name", locationName)
+                        apply()
+                    }
+                }
+                navigateToHomeFragment()
+            } catch (e: Exception) {
+                Toast.makeText(this@MainActivity, "Error fetching location name: ${e.message}", Toast.LENGTH_SHORT).show()
+                navigateToHomeFragment()
+            }
+        }
+    }
+
+    private fun navigateToHomeFragment() {
+        try {
+            val navHostFragment =
+                supportFragmentManager.findFragmentById(binding.navHostFragment.id) as NavHostFragment
+            navHostFragment.navController.navigate(R.id.homeFragment)
+        } catch (e: Exception) {
+            Log.e("MainActivity", "Navigation error: $e")
+        }
+    }
+
     override fun onRequestPermissionsResult(
         requestCode: Int,
-        permissions: Array<out String?>,
-        grantResults: IntArray,
-        deviceId: Int
+        permissions: Array<out String>,
+        grantResults: IntArray
     ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults, Context.DEVICE_ID_DEFAULT)
-        when(requestCode){
-            REQUEST_LOCATION_PERMISSION ->{
-                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED){
-                    // Permission granted, proceed with GPS
-                } else{
-                    // Permission denied, show message
-                    Toast.makeText(this, "Location permission denied", Toast.LENGTH_SHORT).show()
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        when (requestCode) {
+            REQUEST_LOCATION_PERMISSION -> {
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    fetchLocation()
+                } else {
+                    // Let HomeFragment handle the permission request
+                    navigateToHomeFragment()
                 }
             }
             REQUEST_NOTIFICATION_PERMISSION -> {
                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // Permission granted, enable notifications
                 } else {
-                    // Permission denied, disable notifications
                     with(sharedPreferences.edit()) {
                         putString("initial_notification_choice", "disable")
                         apply()
@@ -151,18 +207,38 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQUEST_MAP_SELECTION && resultCode == RESULT_OK) {
+            data?.let {
+                val lat = it.getFloatExtra("selected_latitude", 37.7749f)
+                val lon = it.getFloatExtra("selected_longitude", -122.4194f)
+                with(sharedPreferences.edit()) {
+                    putFloat("selected_latitude", lat)
+                    putFloat("selected_longitude", lon)
+                    apply()
+                }
+            }
+            navigateToHomeFragment()
+        } else {
+            navigateToHomeFragment()
+        }
+    }
+
     override fun onSupportNavigateUp(): Boolean {
         return try {
-            val navHostFragment = supportFragmentManager.findFragmentById(binding.navHostFragment.id) as NavHostFragment
+            val navHostFragment =
+                supportFragmentManager.findFragmentById(binding.navHostFragment.id) as NavHostFragment
             navHostFragment.navController.navigateUp() || super.onSupportNavigateUp()
-
-        }catch (e: IllegalStateException){
-            Log.e("MainActivity" , "NavigateUp: $e")
+        } catch (e: IllegalStateException) {
+            Log.e("MainActivity", "NavigateUp: $e")
             super.onSupportNavigateUp()
         }
     }
+
     companion object {
         private const val REQUEST_LOCATION_PERMISSION = 100
         private const val REQUEST_NOTIFICATION_PERMISSION = 101
+        private const val REQUEST_MAP_SELECTION = 102
     }
 }
