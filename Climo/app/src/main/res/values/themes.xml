@@ -8,4 +8,8 @@
     <style name="Theme.Climo" parent="Base.Theme.Climo" >
          <item name="android:windowTranslucentNavigation">true</item>
     </style>
+
+    <style name="CardView." parent="CardView">
+        <item name="android:foreground">@drawable/gredient_background_banner</item>
+    </style>
 </resources>
