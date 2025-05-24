@@ -11,8 +11,11 @@ import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
+import androidx.navigation.ui.setupWithNavController
 import com.example.climo.R
 import com.example.climo.data.remote.RetrofitClient
 import com.example.climo.databinding.ActivityMainBinding
@@ -20,6 +23,7 @@ import com.example.climo.databinding.DialogInitialSetupBinding
 import com.example.climo.Activity.MapSelectionActivity
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -31,6 +35,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var sharedPreferences: SharedPreferences
     private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private lateinit var navController: NavController
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,19 +45,30 @@ class MainActivity : AppCompatActivity() {
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
+        val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+        navController = navHostFragment.navController
+
+        val appBarConfiguration = AppBarConfiguration(
+            setOf(R.id.homeFragment, R.id.settingsFragment)
+        )
+
+        setupActionBarWithNavController(navController, appBarConfiguration)
+        val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
+        bottomNavigationView.setupWithNavController(navController)
+
         if (!sharedPreferences.getBoolean("setup_completed", false)) {
             showInitialDialog()
         }
 
-        try {
-            val navHostFragment =
-                supportFragmentManager.findFragmentById(binding.navHostFragment.id) as NavHostFragment
-            val navController = navHostFragment.navController
-            setupActionBarWithNavController(navController)
-            Log.d("MainActivity", "NavController setup successful")
-        } catch (e: Exception) {
-            Log.e("MainActivity", "Error setting up NavController: $e")
-        }
+//        try {
+//            val navHostFragment =
+//                supportFragmentManager.findFragmentById(binding.navHostFragment.id) as NavHostFragment
+//            val navController = navHostFragment.navController
+//            setupActionBarWithNavController(navController)
+//            Log.d("MainActivity", "NavController setup successful")
+//        } catch (e: Exception) {
+//            Log.e("MainActivity", "Error setting up NavController: $e")
+//        }
     }
 
     private fun showInitialDialog() {
@@ -171,12 +187,18 @@ class MainActivity : AppCompatActivity() {
 
     private fun navigateToHomeFragment() {
         try {
-            val navHostFragment =
-                supportFragmentManager.findFragmentById(binding.navHostFragment.id) as NavHostFragment
-            navHostFragment.navController.navigate(R.id.homeFragment)
+            navController.navigate(R.id.homeFragment)
         } catch (e: Exception) {
             Log.e("MainActivity", "Navigation error: $e")
         }
+//        try {
+//            val navHostFragment =
+//                supportFragmentManager.findFragmentById(binding.navHostFragment.id) as NavHostFragment
+//            navHostFragment.navController.navigate(R.id.homeFragment)
+//        } catch (e: Exception) {
+//            Log.e("MainActivity", "Navigation error: $e")
+//        }
+
     }
 
     override fun onRequestPermissionsResult(
@@ -196,7 +218,10 @@ class MainActivity : AppCompatActivity() {
             }
             REQUEST_NOTIFICATION_PERMISSION -> {
                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // Permission granted, enable notifications
+                    with(sharedPreferences.edit()) {
+                        putString("initial_notification_choice", "enable")
+                        apply()
+                    }
                 } else {
                     with(sharedPreferences.edit()) {
                         putString("initial_notification_choice", "disable")
@@ -227,13 +252,19 @@ class MainActivity : AppCompatActivity() {
 
     override fun onSupportNavigateUp(): Boolean {
         return try {
-            val navHostFragment =
-                supportFragmentManager.findFragmentById(binding.navHostFragment.id) as NavHostFragment
-            navHostFragment.navController.navigateUp() || super.onSupportNavigateUp()
+            navController.navigateUp() || super.onSupportNavigateUp()
         } catch (e: IllegalStateException) {
             Log.e("MainActivity", "NavigateUp: $e")
             super.onSupportNavigateUp()
         }
+//        return try {
+//            val navHostFragment =
+//                supportFragmentManager.findFragmentById(binding.navHostFragment.id) as NavHostFragment
+//            navHostFragment.navController.navigateUp() || super.onSupportNavigateUp()
+//        } catch (e: IllegalStateException) {
+//            Log.e("MainActivity", "NavigateUp: $e")
+//            super.onSupportNavigateUp()
+//        }
     }
 
     companion object {

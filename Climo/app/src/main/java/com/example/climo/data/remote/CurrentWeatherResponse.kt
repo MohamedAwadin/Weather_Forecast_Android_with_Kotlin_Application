@@ -1,31 +1,32 @@
 package com.example.climo.data.remote
 
 import androidx.transition.Visibility
+import com.google.gson.annotations.SerializedName
 
 data class CurrentWeatherResponse(
-    val main: Main,
-    val weather: List<Weather>,
-    val wind: Wind,
-    val clouds: Clouds,
-    val visibility: Int,
-    val dt: Long
+    @SerializedName("main") val main: Main,
+    @SerializedName("weather")val weather: List<Weather>,
+    @SerializedName("wind")val wind: Wind,
+    @SerializedName("clouds")val clouds: Clouds,
+    @SerializedName("visibility")val visibility: Int,
+    @SerializedName("dt")val dt: Long
 )
 
 data class Clouds (
-    val all : Int
+    @SerializedName("all") val all : Int
 )
 
 data class Wind (
-    val speed: Double
+    @SerializedName("speed") val speed: Double
 )
 
-data class Weather (
-    val description : String,
-    val icon : String
-    )
+data class Weather(
+    @SerializedName("description") val description: String,
+    @SerializedName("icon") val icon: String
+)
 
 data class Main (
-    val temp: Double,
-    val pressure : Int,
-    val humidity: Int
+    @SerializedName("temp") val temp: Double,
+    @SerializedName("pressure") val pressure : Int,
+    @SerializedName("humidity") val humidity: Int
 )

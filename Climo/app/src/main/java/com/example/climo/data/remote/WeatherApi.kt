@@ -9,24 +9,28 @@ interface WeatherApi {
         @Query("lat") lat: Double,
         @Query("lon") lon: Double,
         @Query("appid") apiKey: String,
-        @Query("units") units: String
+        @Query("units") units: String,
+        @Query("lang") lang: String
     ): CurrentWeatherResponse
 
     @GET("data/2.5/forecast/hourly")
     suspend fun getHourlyForecast(
         @Query("lat") lat: Double,
         @Query("lon") lon: Double,
+        @Query("cnt") count: Int = 24,
         @Query("appid") apiKey: String,
-        @Query("units") units: String
+        @Query("units") units: String,
+        @Query("lang") lang: String
     ): HourlyForecastResponse
 
     @GET("data/2.5/forecast/daily")
     suspend fun getDailyForecast(
         @Query("lat") lat: Double,
         @Query("lon") lon: Double,
-        @Query("cnt") count: Int = 16,
+        @Query("cnt") count: Int = 7,
         @Query("appid") apiKey: String,
-        @Query("units") units: String
+        @Query("units") units: String,
+        @Query("lang") lang: String
     ): DailyForecastResponse
 
     @GET("geo/1.0/direct")
@@ -35,6 +39,7 @@ interface WeatherApi {
         @Query("limit") limit: Int = 5,
         @Query("appid") apiKey: String
     ): List<GeocodingResponse>
+
     @GET("geo/1.0/reverse")
     suspend fun getReverseGeocoding(
         @Query("lat") lat: Double,
@@ -43,3 +48,4 @@ interface WeatherApi {
         @Query("appid") apiKey: String
     ): List<GeocodingResponse>
 }
+

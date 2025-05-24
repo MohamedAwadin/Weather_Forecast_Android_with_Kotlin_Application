@@ -1,0 +1,44 @@
+<resources>
+    <!-- General -->
+    <string name="app_name">Climo</string>
+    <string name="unknown">غير معروف</string>
+
+    <!-- Settings Screen -->
+    <string name="location_set_to">تم تعيين الموقع إلى %s</string>
+    <string name="notifications_enabled">تم تفعيل الإشعارات</string>
+    <string name="notifications_disabled">تم تعطيل الإشعارات</string>
+    <string name="language_changed">تم تغيير اللغة إلى %s</string>
+    <string name="language_english">الإنجليزية</string>
+    <string name="language_arabic">العربية</string>
+    <string name="unit_celsius">سيلزيوس</string>
+    <string name="unit_kelvin">كلفن</string>
+    <string name="unit_fahrenheit">فهرنهايت</string>
+    <string name="unit_mps">متر في الثانية</string>
+    <string name="unit_mph">ميل في الساعة</string>
+    <string name="location_selection">تحديد الموقع</string>
+    <string name="language_selection">اللغة</string>
+    <string name="temp_unit_selection">درجة الحرارة</string>
+    <string name="wind_speed_selection">سرعة الرياح</string>
+    <string name="notification_selection">الأشعارات</string>
+
+
+    <!-- Home Screen -->
+    <string name="location_permission_denied">تم رفض إذن الموقع. يرجى السماح لعرض بيانات الطقس.</string>
+    <string name="date_format">dd MMM yyyy، HH:mm</string>
+    <string name="time_format">HH:mm</string>
+    <string name="pressure">الضغط: %d هيكتو باسكال</string>
+    <string name="humidity">الرطوبة: %d%%</string>
+    <string name="wind_speed">سرعة الرياح: %.1f %s</string>
+    <string name="clouds">الغيوم: %d%%</string>
+    <string name="visibility">الرؤية: %d متر</string>
+    <string name="temp_celsius">%.1f°س / %.1f°س</string>
+    <string name="temp_fahrenheit">%.1f°ف / %.1f°ف</string>
+    <string name="temp_kelvin">%.1fك / %.1fك</string>
+    <string name="temp_celsius_single">%.1f°س</string>
+    <string name="temp_fahrenheit_single">%.1f°ف</string>
+    <string name="temp_kelvin_single">%.1fك</string>
+
+    <!-- Navigation -->
+    <string name="nav_home">الرئيسية</string>
+    <string name="nav_settings">الإعدادات</string>
+</resources>

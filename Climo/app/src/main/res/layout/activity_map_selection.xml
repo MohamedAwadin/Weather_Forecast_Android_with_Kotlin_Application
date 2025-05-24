@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#eeeeee">
+    android:background="@drawable/gredient_backgound2">
 
     <org.maplibre.android.maps.MapView
         android:id="@+id/mapView"
@@ -36,7 +36,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
-        android:backgroundTint="#75b4e3"
+        android:background="@drawable/gredient_background_banner"
         android:text="Save"
         android:textColor="#ffffff"
         app:layout_constraintEnd_toEndOf="parent"
