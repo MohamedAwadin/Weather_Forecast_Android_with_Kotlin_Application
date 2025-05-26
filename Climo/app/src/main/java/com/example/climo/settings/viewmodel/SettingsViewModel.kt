@@ -22,9 +22,9 @@ class SettingsViewModel(private val sharedPreferences: SharedPreferences , priva
 
     fun saveLocation(latitude: Double, longitude: Double, locationName: String) {
         sharedPreferences.edit {
-            putFloat("selected_latitude", latitude.toFloat())
-            putFloat("selected_longitude", longitude.toFloat())
-            putString("selected_location_name", locationName)
+            putFloat("current_latitude", latitude.toFloat())
+            putFloat("current_longitude", longitude.toFloat())
+            putString("current_location_name", locationName)
         }
     }
 

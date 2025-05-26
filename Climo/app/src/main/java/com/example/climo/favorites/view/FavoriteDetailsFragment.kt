@@ -1,4 +1,5 @@
-package com.example.climo.home.view
+package com.example.climo.favorites.view
+
 
 import android.Manifest
 import android.content.pm.PackageManager
@@ -17,7 +18,10 @@ import androidx.navigation.fragment.navArgs
 import com.example.climo.R
 import com.example.climo.data.local.ClimoDatabase
 import com.example.climo.data.model.WeatherData
+import com.example.climo.databinding.FragmentFavoriteDetailsBinding
 import com.example.climo.databinding.FragmentHomeBinding
+import com.example.climo.home.view.DailyForecastAdapter
+import com.example.climo.home.view.HourlyForecastAdapter
 import com.example.climo.home.viewmodel.HomeViewModel
 import com.example.climo.home.viewmodel.HomeViewModelFactory
 import com.example.climo.settings.view.SettingsFragment
@@ -26,36 +30,23 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-class HomeFragment : Fragment() {
+class FavoriteDetailsFragment : Fragment() {
 
-    private var _binding: FragmentHomeBinding? = null
+    private var _binding: FragmentFavoriteDetailsBinding? = null
     private val binding get() = _binding!!
     private val viewModel: HomeViewModel by viewModels {
         HomeViewModelFactory(ClimoDatabase.getDatabase(requireContext()), requireContext())
     }
     private lateinit var hourlyAdapter: HourlyForecastAdapter
     private lateinit var dailyAdapter: DailyForecastAdapter
-    private val args: HomeFragmentArgs by navArgs()
+    private val args: FavoriteDetailsFragmentArgs by navArgs()
 
-    private val requestPermissionLauncher =
-        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-            if (isGranted) {
-                fetchWeatherData()
-            } else {
-                showPermissionRequestCard()
-                Toast.makeText(
-                    requireContext(),
-                    getString(R.string.location_permission_denied),
-                    Toast.LENGTH_LONG
-                ).show()
-            }
-        }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentHomeBinding.inflate(inflater, container, false)
+        _binding = FragmentFavoriteDetailsBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -67,9 +58,6 @@ class HomeFragment : Fragment() {
         binding.hourlyForecastRecyclerView.adapter = hourlyAdapter
         binding.dailyForecastRecyclerView.adapter = dailyAdapter
 
-        binding.allowButton.setOnClickListener {
-            requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
-        }
 
         SettingsFragment.languageChangeTrigger.observe(viewLifecycleOwner) {
             fetchWeatherData()
@@ -78,7 +66,8 @@ class HomeFragment : Fragment() {
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
         val locationChoice = sharedPreferences.getString("initial_location_choice", "gps")
 
-        // Use favorite location if explicitly navigated from FavoriteLocationsFragment
+
+
         if (args.latitude != 0.0f && args.longitude != 0.0f && args.locationName.isNotEmpty()) {
             fetchWeatherData(args.latitude.toDouble(), args.longitude.toDouble(), args.locationName)
         } else if (locationChoice == "gps" && ActivityCompat.checkSelfPermission(
@@ -93,7 +82,7 @@ class HomeFragment : Fragment() {
     }
 
     private fun showPermissionRequestCard() {
-        binding.permissionRequestCard.visibility = View.VISIBLE
+
         binding.weatherView.visibility = View.GONE
         binding.currentWeatherCard.visibility = View.GONE
         binding.hourlyForecastRecyclerView.visibility = View.GONE
@@ -102,7 +91,6 @@ class HomeFragment : Fragment() {
     }
 
     private fun showWeatherData() {
-        binding.permissionRequestCard.visibility = View.GONE
         binding.weatherView.visibility = View.VISIBLE
         binding.currentWeatherCard.visibility = View.VISIBLE
         binding.hourlyForecastRecyclerView.visibility = View.VISIBLE
@@ -116,9 +104,9 @@ class HomeFragment : Fragment() {
         locationName: String? = null
     ) {
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
-        val lat = latitude ?: sharedPreferences.     getFloat("current_latitude", 37.7749f).toDouble()
-        val lon = longitude ?: sharedPreferences.    getFloat("current_longitude", -122.4194f).toDouble()
-        val name = locationName ?: sharedPreferences.getString("current_location_name", "Unknown Location")
+        val lat = latitude ?: sharedPreferences.     getFloat("favorite_latitude", 37.7749f).toDouble()
+        val lon = longitude ?: sharedPreferences.    getFloat("favorite_longitude", -122.4194f).toDouble()
+        val name = locationName ?: sharedPreferences.getString("favorite_location_name", "Unknown Location")
         binding.locationName.text = name
 
         viewModel.fetchWeather(lat, lon)

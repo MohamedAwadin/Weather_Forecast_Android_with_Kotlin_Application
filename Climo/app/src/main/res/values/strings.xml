@@ -2,6 +2,16 @@
     <!-- General -->
     <string name="app_name">Climo</string>
     <string name="unknown">Unknown</string>
+    <string name="save">Save</string>
+    <string name="undo">Undo</string>
+    <string name="open_drawer">Open Navigation Drawer</string>
+    <string name="close_drawer">Close Navigation Drawer</string>
+
+    <!-- New strings -->
+    <string name="initial_setup_title">Initial Setup</string>
+    <string name="ok">OK</string>
+    <string name="unable_to_fetch_location">Unable to fetch location</string>
+    <string name="failed_to_fetch_location">Failed to fetch location: %s</string>
 
     <!-- Settings Screen -->
     <string name="location_set_to">Location set to %s</string>
@@ -40,4 +50,24 @@
     <!-- Navigation -->
     <string name="nav_home">Home</string>
     <string name="nav_settings">Settings</string>
+    <string name="nav_favorite_locations">Favorites</string>
+
+
+    <!-- Favorite Locations -->
+    <string name="no_favorite_locations">No favorite locations added.</string>
+    <string name="location_removed">Removed %s</string>
+    <string name="location_added">Added %s to favorites</string>
+
+    <!-- Map Selection -->
+    <string name="please_select_location">Please select a location</string>
+    <string name="no_cities_found">No cities found for: %s</string>
+    <string name="error_fetching_suggestions">Error fetching suggestions: %s</string>
+    <string name="error_fetching_city">Error fetching city: %s</string>
+    <string name="selected_location">Selected: %s</string>
+    <string name="could_not_determine_location">Could not determine location</string>
+    <string name="error_fetching_location_name">Error fetching location name: %s</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+
 </resources>

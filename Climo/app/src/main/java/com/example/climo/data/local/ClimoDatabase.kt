@@ -8,7 +8,7 @@ import com.example.climo.data.model.FavoriteLocation
 import com.example.climo.data.model.WeatherAlert
 import com.example.climo.data.model.WeatherData
 
-@Database(entities = [WeatherData::class, FavoriteLocation::class , WeatherAlert::class], version = 1)
+@Database(entities = [WeatherData::class, FavoriteLocation::class , WeatherAlert::class], version = 2, exportSchema = false)
 abstract class ClimoDatabase : RoomDatabase() {
     abstract fun weatherDataDao(): WeatherDataDao
     abstract fun favoriteLocationDao(): FavoriteLocationDao

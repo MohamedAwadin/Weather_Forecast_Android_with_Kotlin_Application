@@ -12,6 +12,8 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 
 import com.example.climo.R
+import com.example.climo.data.local.ClimoDatabase
+import com.example.climo.data.model.FavoriteLocation
 import com.example.climo.data.remote.RetrofitClient
 import com.example.climo.databinding.ActivityMapSelectionBinding
 import kotlinx.coroutines.CoroutineScope
@@ -39,17 +41,19 @@ class MapSelectionActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var mapView: MapView
     private lateinit var mapLibreMap: MapLibreMap
     private var selectedLatLng: LatLng? = null
-    private lateinit var sharedPreferences: SharedPreferences
+    private val sharedPreferences by lazy { PreferenceManager.getDefaultSharedPreferences(this) }
     private var currentMarkerFeature: Feature? = null
     private var searchJob: Job? = null
+    private var selectedLocationName: String? = null
+    public lateinit var msg : String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         MapLibre.getInstance(this)
         binding = ActivityMapSelectionBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+        val copy_msg = intent.getStringExtra("from_where") ?: "home"
+        msg = copy_msg.toString()
 
         mapView = binding.mapView
         mapView.onCreate(savedInstanceState)
@@ -57,23 +61,92 @@ class MapSelectionActivity : AppCompatActivity(), OnMapReadyCallback {
 
         setupCitySearch()
 
+//        binding.saveButton.setOnClickListener {
+//            Log.d("MapSelectionActivity", "Save button clicked: $selectedLatLng, $selectedLocationName")
+//            selectedLatLng?.let { latlang ->
+//
+//                if (msg == "set" || msg == "home"){
+//                    //Log.d("MapSelectionActivity", "Home_Save button clicked: $selectedLatLng, $selectedLocationName")
+//                    val locationName = selectedLocationName ?: sharedPreferences.getString("current_location_name", "Unknown Location") ?: "Unknown Location"
+//                    sharedPreferences.edit().apply {
+//                        putFloat("current_latitude", latlang.latitude.toFloat())
+//                        putFloat("current_longitude",latlang.longitude.toFloat())
+//                        putString("current_location_name" , locationName)
+//                        apply()
+//                    }
+//                    val intent = Intent().apply {
+//                        putExtra("current_latitude", latlang.latitude.toFloat())
+//                        putExtra("current_longitude", latlang.longitude.toFloat())
+//                        putExtra("current_location_name" , locationName)
+//                    }
+//                    setResult(RESULT_OK, intent)
+//                    finish()
+//
+//                } else if (msg == "fav"){
+//                    //Log.d("MapSelectionActivity", "Fav_Save button clicked: $selectedLatLng, $selectedLocationName")
+//                    val locationName = selectedLocationName ?: sharedPreferences.getString("favorite_location_name", "Unknown Location") ?: "Unknown Location"
+//                    sharedPreferences.edit().apply {
+//                        putFloat("favorite_latitude", latlang.latitude.toFloat())
+//                        putFloat("favorite_longitude",latlang.longitude.toFloat())
+//                        putString("favorite_location_name" , locationName)
+//                        apply()
+//                    }
+//
+//                    CoroutineScope(Dispatchers.IO).launch {
+//                        val database = ClimoDatabase.getDatabase(this@MapSelectionActivity)
+//                        database.favoriteLocationDao().insert(
+//                            FavoriteLocation(
+//                                id = 0,
+//                                latitude = latlang.latitude,
+//                                longitude = latlang.longitude,
+//                                cityName = locationName
+//                            )
+//                        )
+//                        withContext(Dispatchers.Main) {
+//                            Toast.makeText(this@MapSelectionActivity, getString(R.string.location_added, locationName), Toast.LENGTH_SHORT).show()
+//                        }
+//                        val intent = Intent().apply {
+//                            putExtra("favorite_latitude", latlang.latitude.toFloat())
+//                            putExtra("favorite_longitude", latlang.longitude.toFloat())
+//                            putExtra("favorite_location_name" , locationName)
+//                        }
+//                        setResult(RESULT_OK, intent)
+//                        finish()
+//
+//                }
+//
+//
+//
+//                }
+//
+//
+//            } ?: run {
+//                Toast.makeText(this, getString(R.string.please_select_location), Toast.LENGTH_SHORT).show()
+//            }
+//        }
         binding.saveButton.setOnClickListener {
-            selectedLatLng?.let {
-                with(sharedPreferences.edit()) {
-                    putFloat("selected_latitude", it.latitude.toFloat())
-                    putFloat("selected_longitude", it.longitude.toFloat())
-                    apply()
-                }
+            Log.d("MapSelectionActivity", "Save button clicked: $selectedLatLng, $selectedLocationName")
+            selectedLatLng?.let { latLng ->
+                val locationName = selectedLocationName ?: "Unknown Location"
                 val intent = Intent().apply {
-                    putExtra("selected_latitude", it.latitude.toFloat())
-                    putExtra("selected_longitude", it.longitude.toFloat())
+                    if (msg == "set" || msg == "home") {
+                        putExtra("current_latitude", latLng.latitude.toFloat())
+                        putExtra("current_longitude", latLng.longitude.toFloat())
+                        putExtra("current_location_name", locationName)
+                    } else if (msg == "fav") {
+                        putExtra("favorite_latitude", latLng.latitude.toFloat())
+                        putExtra("favorite_longitude", latLng.longitude.toFloat())
+                        putExtra("favorite_location_name", locationName)
+                    }
                 }
                 setResult(RESULT_OK, intent)
                 finish()
             } ?: run {
-                Toast.makeText(this, "Please select a location on the map", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.please_select_location), Toast.LENGTH_SHORT).show()
             }
         }
+
+
     }
 
     override fun onMapReady(map: MapLibreMap) {
@@ -147,10 +220,10 @@ class MapSelectionActivity : AppCompatActivity(), OnMapReadyCallback {
 
             override fun afterTextChanged(s: Editable?) {
                 val query = s.toString()
-                if (query.length >= 3) { // Fetch suggestions after 3 characters
-                    searchJob?.cancel() // Cancel previous search job
+                if (query.length >= 3) {
+                    searchJob?.cancel()
                     searchJob = CoroutineScope(Dispatchers.Main).launch {
-                        delay(300) // Debounce to avoid rapid API calls
+                        delay(300)
                         fetchCitySuggestions(query)
                     }
                 }
@@ -167,18 +240,14 @@ class MapSelectionActivity : AppCompatActivity(), OnMapReadyCallback {
                 Log.d("MapSelectionActivity", "Geocoding response: $response")
                 if (response.isNotEmpty()) {
                     val suggestions = response.map { it.name }
-                    val adapter = ArrayAdapter(
-                        this@MapSelectionActivity,
-                        android.R.layout.simple_dropdown_item_1line,
-                        suggestions
-                    )
+                    val adapter = ArrayAdapter( this@MapSelectionActivity,  android.R.layout.simple_dropdown_item_1line, suggestions)
                     binding.citySearchAutoComplete.setAdapter(adapter)
                     binding.citySearchAutoComplete.showDropDown()
                 } else {
-                    Toast.makeText(this@MapSelectionActivity, "No cities found for \"$cityName\"", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@MapSelectionActivity, getString(R.string.no_cities_found, cityName), Toast.LENGTH_SHORT).show()
                 }
             } catch (e: Exception) {
-                Toast.makeText(this@MapSelectionActivity, "Error fetching suggestions: ${e.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@MapSelectionActivity, getString(R.string.error_fetching_suggestions, e.message), Toast.LENGTH_SHORT).show()
                 Log.e("MapSelectionActivity", "Error fetching suggestions", e)
             }
         }
@@ -195,6 +264,7 @@ class MapSelectionActivity : AppCompatActivity(), OnMapReadyCallback {
                     val city = response[0]
                     val latLng = LatLng(city.lat, city.lon)
                     selectedLatLng = latLng
+                    selectedLocationName = city.name
                     clearMarkers()
                     updateMarker(latLng)
                     mapLibreMap.cameraPosition = CameraPosition.Builder()
@@ -202,24 +272,36 @@ class MapSelectionActivity : AppCompatActivity(), OnMapReadyCallback {
                         .zoom(10.0)
                         .build()
 
+//                    with(sharedPreferences.edit()) {
+//                        if (msg == "set" || msg == "home"){
+//                            putString("current_location_name", city.name)
+//                            apply()
+//                        } else if (msg == "fav"){
+//                            putString("favorite_location_name", city.name)
+//                            apply()
+//                        }
+
                     with(sharedPreferences.edit()) {
-                        putString("selected_location_name", city.name)
+                        if (msg == "set" || msg == "home") {
+                            putString("current_location_name", city.name)
+                        } else if (msg == "fav") {
+                            putString("favorite_location_name", city.name)
+                        }
                         apply()
+
+
                     }
 
                     val suggestions = response.map { it.name }
-                    val adapter = ArrayAdapter(
-                        this@MapSelectionActivity,
-                        android.R.layout.simple_dropdown_item_1line,
-                        suggestions
+                    val adapter = ArrayAdapter( this@MapSelectionActivity,  android.R.layout.simple_dropdown_item_1line, suggestions
                     )
                     binding.citySearchAutoComplete.setAdapter(adapter)
                     binding.citySearchAutoComplete.showDropDown()
                 } else {
-                    Toast.makeText(this@MapSelectionActivity, "No cities found for \"$cityName\"", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@MapSelectionActivity, getString(R.string.no_cities_found, cityName), Toast.LENGTH_SHORT).show()
                 }
             } catch (e: Exception) {
-                Toast.makeText(this@MapSelectionActivity, "Error fetching city: ${e.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@MapSelectionActivity, getString(R.string.error_fetching_city, e.message), Toast.LENGTH_SHORT).show()
                 Log.e("MapSelectionActivity", "Error fetching city", e)
             }
         }
@@ -232,18 +314,31 @@ class MapSelectionActivity : AppCompatActivity(), OnMapReadyCallback {
                     RetrofitClient.api.getReverseGeocoding(latLng.latitude, latLng.longitude, 1, "ecfe2681690524ece36e0e4818523e5f")
                 }
                 Log.d("MapSelectionActivity", "Reverse geocoding response: $response")
-                if (response.isNotEmpty()) {
-                    val locationName = response[0].name
-                    Toast.makeText(this@MapSelectionActivity, "Selected location: $locationName", Toast.LENGTH_SHORT).show()
-                    with(sharedPreferences.edit()) {
-                        putString("selected_location_name", locationName)
-                        apply()
+                selectedLocationName = if (response.isNotEmpty()) response[0].name else "Unknown Location"
+                Toast.makeText(this@MapSelectionActivity, getString(R.string.selected_location, selectedLocationName), Toast.LENGTH_SHORT).show()
+//                sharedPreferences.edit().apply {
+//
+//                    if (msg == "set" || msg == "home"){
+//                        putString("current_location_name", selectedLocationName)
+//                        apply()
+//                    } else if (msg == "fav"){
+//                        putString("favorite_location_name", selectedLocationName)
+//                        apply()
+//                    }
+//                }
+                with(sharedPreferences.edit()) {
+                    if (msg == "set" || msg == "home") {
+                        putString("current_location_name", selectedLocationName)
+                    } else if (msg == "fav") {
+                        putString("favorite_location_name", selectedLocationName)
                     }
-                } else {
-                    Toast.makeText(this@MapSelectionActivity, "Could not determine location name", Toast.LENGTH_SHORT).show()
+                    apply()
                 }
             } catch (e: Exception) {
-                Toast.makeText(this@MapSelectionActivity, "Error fetching location name: ${e.message}", Toast.LENGTH_SHORT).show()
+//                Toast.makeText(this@MapSelectionActivity, getString(R.string.error_fetching_location_name, e.message), Toast.LENGTH_SHORT).show()
+//                Log.e("MapSelectionActivity", "Error fetching location name", e)
+                selectedLocationName = "Unknown Location"
+                Toast.makeText(this@MapSelectionActivity, getString(R.string.error_fetching_location_name, e.message), Toast.LENGTH_SHORT).show()
                 Log.e("MapSelectionActivity", "Error fetching location name", e)
             }
         }

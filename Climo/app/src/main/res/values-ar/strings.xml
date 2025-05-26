@@ -2,6 +2,15 @@
     <!-- General -->
     <string name="app_name">Climo</string>
     <string name="unknown">غير معروف</string>
+    <string name="save">حفظ</string>
+    <string name="undo">تراجع</string>
+    <string name="open_drawer">افتح درج التنقل</string>
+    <string name="close_drawer">أغلق درج التنقل</string>
+
+    <string name="initial_setup_title">الإعداد الأولي</string>
+    <string name="ok">موافق</string>
+    <string name="unable_to_fetch_location">تعذر جلب الموقع</string>
+    <string name="failed_to_fetch_location">فشل في جلب الموقع: %s</string>
 
     <!-- Settings Screen -->
     <string name="location_set_to">تم تعيين الموقع إلى %s</string>
@@ -41,4 +50,21 @@
     <!-- Navigation -->
     <string name="nav_home">الرئيسية</string>
     <string name="nav_settings">الإعدادات</string>
+    <string name="nav_favorite_locations">المفضلة</string>
+
+
+    <!-- Favorite Locations -->
+    <string name="no_favorite_locations">لم تتم إضافة مواقع مفضلة.</string>
+    <string name="location_removed">تم إزالة %s</string>
+
+    <string name="location_added">تم إضافة %s إلى المفضلة</string>
+
+    <!-- Map Selection -->
+    <string name="please_select_location">يرجى اختيار موقع</string>
+    <string name="no_cities_found">لم يتم العثور على مدن لـ: %s</string>
+    <string name="error_fetching_suggestions">خطأ في جلب الاقتراحات: %s</string>
+    <string name="error_fetching_city">خطأ في جلب المدينة: %s</string>
+    <string name="selected_location">تم اختيار: %s</string>
+    <string name="could_not_determine_location">تعذر تحديد الموقع</string>
+    <string name="error_fetching_location_name">خطأ في جلب اسم الموقع: %s</string>
 </resources>

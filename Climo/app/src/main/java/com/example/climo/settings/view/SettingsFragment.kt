@@ -44,9 +44,9 @@ class SettingsFragment : Fragment() {
     private val mapSelectionLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == android.app.Activity.RESULT_OK){
             val date = result.data
-            val latitude = date?.getFloatExtra("selected_latitude", 0f)?.toDouble() ?: 0.0
-            val longitude = date?.getFloatExtra("selected_longitude", 0f)?.toDouble() ?: 0.0
-            val locationName = sharedPreferences.getString("selected_location_name", "Selected Location") ?: "Selected Location"
+            val latitude = date?.getFloatExtra("current_latitude", 0f)?.toDouble() ?: 0.0
+            val longitude = date?.getFloatExtra("current_longitude", 0f)?.toDouble() ?: 0.0
+            val locationName = sharedPreferences.getString("current_location_name", "Selected Location") ?: "Selected Location"
 
             viewModel.saveLocation(latitude , longitude , locationName)
             Toast.makeText(requireContext(),getString(R.string.location_set_to, locationName), Toast.LENGTH_SHORT).show()
@@ -118,6 +118,7 @@ class SettingsFragment : Fragment() {
         }
         binding.selectLocationButton.setOnClickListener {
             val intent = Intent(requireContext() , MapSelectionActivity::class.java)
+            intent.putExtra("from_where" , "set")
             mapSelectionLauncher.launch(intent)
         }
     }

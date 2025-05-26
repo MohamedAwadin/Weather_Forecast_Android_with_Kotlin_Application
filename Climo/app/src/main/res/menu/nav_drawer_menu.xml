@@ -5,13 +5,11 @@
         android:icon="@drawable/ic_home"
         android:title="@string/nav_home" />
     <item
-        android:id="@+id/favoriteLocationFragment"
+        android:id="@+id/favoriteLocationsFragment"
         android:icon="@drawable/ic_heart"
-        android:title="@string/nav_favorite_locations"
-        />
+        android:title="@string/nav_favorite_locations" />
     <item
         android:id="@+id/settingsFragment"
         android:icon="@drawable/ic_settings"
         android:title="@string/nav_settings" />
-
 </menu>
