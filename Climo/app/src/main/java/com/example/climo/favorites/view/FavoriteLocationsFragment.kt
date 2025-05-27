@@ -30,17 +30,7 @@ class   FavoriteLocationsFragment : Fragment() {
     }
     private lateinit var adapter: FavoriteLocationsAdapter
 
-//    private val mapSelectionLauncher =
-//        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-//            Log.d("FavoriteLocationsFragment", "mapSelectionLauncher result: ${result.resultCode}, ${result.data}")
-//            if (result.resultCode == android.app.Activity.RESULT_OK){
-//                val data = result.data
-//                val latitude = data?.getFloatExtra("favorite_latitude", 0f)?.toDouble() ?: 0.0
-//                val longitude = data?.getFloatExtra("favorite_latitude", 0f)?.toDouble() ?: 0.0
-//                val cityName = data?.getStringExtra("favorite_location_name") ?: "Unknown Location"
-//                viewModel.addFavoriteLocation(latitude , longitude , cityName)
-//            }
-//        }
+
 private val mapSelectionLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
     Log.d("FavoriteLocationsFragment", "mapSelectionLauncher result: ${result.resultCode}, ${result.data}")
     if (result.resultCode == android.app.Activity.RESULT_OK) {
@@ -92,17 +82,7 @@ private val mapSelectionLauncher = registerForActivityResult(ActivityResultContr
             }
         )
         binding.favoriteLocationsRecyclerView.adapter = adapter
-//
-//        viewModel.favoriteLocations.observe(viewLifecycleOwner) { locations ->
-//            adapter.submitList(locations)
-//            binding.emptyStateText.visibility = if (locations.isEmpty()) View.VISIBLE else View.GONE
-//        }
-//
-//        binding.addLocationFab.setOnClickListener {
-//            val intent = Intent(requireContext() , MapSelectionActivity::class.java)
-//            intent.putExtra("from_where" , "fav")
-//            mapSelectionLauncher.launch(intent)
-//        }
+
 
         viewModel.favoriteLocations.observe(viewLifecycleOwner) { locations ->
             Log.d("FavoriteLocationsFragment", "Favorite locations updated: $locations")

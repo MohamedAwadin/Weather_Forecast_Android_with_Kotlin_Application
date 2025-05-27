@@ -10,7 +10,7 @@ data class WeatherAlert (
     val cityName: String,
     val latitude : Double,
     val longitude: Double,
-    val fromDateTime: Long,
-    val toDateTime: Long,
+    val fromDateTime: String,
+    val toDateTime: String,
     val alertType: String
 )

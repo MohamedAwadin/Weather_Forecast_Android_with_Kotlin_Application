@@ -53,7 +53,7 @@ class MainActivity : AppCompatActivity() {
         navController = navHostFragment.navController
 
         appBarConfiguration = AppBarConfiguration(
-            setOf(R.id.homeFragment, R.id.favoriteLocationsFragment, R.id.settingsFragment),
+            setOf(R.id.homeFragment, R.id.favoriteLocationsFragment, R.id.settingsFragment , R.id.weatherAlertsFragment),
             binding.drawerLayout
         )
 
@@ -78,6 +78,9 @@ class MainActivity : AppCompatActivity() {
             showInitialDialog()
 
         } else {
+            /****************/
+            checkNotificationPermission()
+            /****************/
             navigateToHomeFragment()
         }
     }
@@ -114,6 +117,19 @@ class MainActivity : AppCompatActivity() {
         dialogBinding.gpsRadioButton.isChecked = true
         dialogBinding.disableNotificationsRadioButton.isChecked = true
     }
+    /****************************/
+    private fun checkNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                    REQUEST_NOTIFICATION_PERMISSION
+                )
+            }
+        }
+    }
+    /****************************/
 
     private fun handlePermissions(locationChoice: String, notificationChoice: String) {
         when (locationChoice) {
@@ -234,19 +250,7 @@ class MainActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQUEST_MAP_SELECTION && resultCode == RESULT_OK && sharedPreferences.getBoolean("setup_complete", false)) {
-//            data?.let {
-//                val lat = it.getFloatExtra("current_latitude", 37.7749f)
-//                val lon = it.getFloatExtra("current_longitude", -122.4194f)
-//                val locationName = it.getStringExtra("current_location_name") ?: "Unknown Location"
-//                with(sharedPreferences.edit()) {
-//                    putFloat("current_latitude", lat)
-//                    putFloat("current_longitude", lon)
-//                    putString("current_location_name", locationName)
-//                    apply()
-//                }
-//            }
-//            navigateToHomeFragment()
-//        }
+
             data?.let {
                 val lat = it.getFloatExtra("current_latitude", 37.7749f)
                 val lon = it.getFloatExtra("current_longitude", -122.4194f)

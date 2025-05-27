@@ -67,4 +67,16 @@
     <string name="selected_location">تم اختيار: %s</string>
     <string name="could_not_determine_location">تعذر تحديد الموقع</string>
     <string name="error_fetching_location_name">خطأ في جلب اسم الموقع: %s</string>
+    <string name="weather_alerts">التنبيهات</string>
+
+    <string name="no_alerts">لا يوجد تنبيهات مفعله</string>
+    <string name="alert_removed">Alert for %1$s removed</string>
+    <string name="city_name">City Name</string>
+    <string name="select_from_date_time">Select From Date/Time</string>
+    <string name="select_to_date_time">Select To Date/Time</string>
+    <string name="notification">Notification</string>
+    <string name="heads_up_notification">Heads-Up Notification</string>
+    <string name="please_fill_all_fields">Please fill all fields</string>
+
+    <string name="cancel">Cancel</string>
 </resources>

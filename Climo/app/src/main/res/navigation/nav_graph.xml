@@ -59,4 +59,8 @@
         android:id="@+id/settingsFragment"
         android:name="com.example.climo.settings.view.SettingsFragment"
         android:label="@string/nav_settings" />
+    <fragment
+        android:id="@+id/weatherAlertsFragment"
+        android:name="com.example.climo.alerts.view.WeatherAlertsFragment"
+        android:label="@string/weather_alerts" />
 </navigation>

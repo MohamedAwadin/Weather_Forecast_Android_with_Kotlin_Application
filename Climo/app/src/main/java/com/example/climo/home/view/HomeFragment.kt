@@ -78,7 +78,7 @@ class HomeFragment : Fragment() {
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
         val locationChoice = sharedPreferences.getString("initial_location_choice", "gps")
 
-        // Use favorite location if explicitly navigated from FavoriteLocationsFragment
+
         if (args.latitude != 0.0f && args.longitude != 0.0f && args.locationName.isNotEmpty()) {
             fetchWeatherData(args.latitude.toDouble(), args.longitude.toDouble(), args.locationName)
         } else if (locationChoice == "gps" && ActivityCompat.checkSelfPermission(

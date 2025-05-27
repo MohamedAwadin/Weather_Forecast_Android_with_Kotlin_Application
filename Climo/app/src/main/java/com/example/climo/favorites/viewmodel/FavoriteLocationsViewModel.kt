@@ -50,24 +50,6 @@ class FavoriteLocationsViewModel(private val database: ClimoDatabase): ViewModel
         }
     }
 
-//    fun addFavoriteLocation(latitude: Double ,longitude : Double , cityName: String){
-//        viewModelScope.launch(Dispatchers.IO) {
-//            Log.e("FavoriteLocationsViewModel" , "addFavoriteLocation: ${latitude} , ${longitude}, ${cityName}")
-//            val location = FavoriteLocation(
-//                id = 0,
-//                latitude = latitude,
-//                longitude = longitude,
-//                cityName = cityName
-//            )
-//            database.favoriteLocationDao().insert(location)
-//        }
-//    }
-//
-//    fun deleteFavoriteLocation(location: FavoriteLocation){
-//        viewModelScope.launch(Dispatchers.IO) {
-//            database.favoriteLocationDao().delete(location)
-//        }
-//    }
 
 
 }

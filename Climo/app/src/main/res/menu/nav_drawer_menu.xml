@@ -9,6 +9,10 @@
         android:icon="@drawable/ic_heart"
         android:title="@string/nav_favorite_locations" />
     <item
+        android:id="@+id/weatherAlertsFragment"
+        android:icon="@drawable/ic_alert"
+        android:title="@string/weather_alerts" />
+    <item
         android:id="@+id/settingsFragment"
         android:icon="@drawable/ic_settings"
         android:title="@string/nav_settings" />
