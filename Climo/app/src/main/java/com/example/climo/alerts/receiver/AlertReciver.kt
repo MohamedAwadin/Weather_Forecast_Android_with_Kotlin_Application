@@ -7,6 +7,7 @@ import android.util.Log
 import com.example.climo.alerts.notification.NotificationHelper
 import com.example.climo.data.local.ClimoDatabase
 import com.example.climo.data.model.WeatherAlert
+import com.example.climo.data.repository.WeatherAlertRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -41,7 +42,8 @@ class AlertReceiver : BroadcastReceiver() {
 
                 CoroutineScope(Dispatchers.IO).launch {
                     try {
-                        val dao = ClimoDatabase.getDatabase(context).weatherAlertDao()
+//                        val dao = ClimoDatabase.getDatabase(context).weatherAlertDao()
+                        val repository = WeatherAlertRepository(ClimoDatabase.getDatabase(context).weatherAlertDao())
                         val alert = WeatherAlert(
                             id = alertId,
                             cityName=cityName,
@@ -51,7 +53,8 @@ class AlertReceiver : BroadcastReceiver() {
                             toDateTime = toDateTime,
                             alertType = alertType
                         )
-                        dao.delete(alert)
+//                        dao.delete(alert)
+                        repository.deleteAlert(alert)
                         Log.d("AlertReceiver", "Deleted alert from database: id=$alertId")
 
                     }catch (e: Exception){

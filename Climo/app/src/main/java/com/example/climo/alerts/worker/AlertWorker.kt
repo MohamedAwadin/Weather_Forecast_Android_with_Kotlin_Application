@@ -6,7 +6,9 @@ import android.util.Log
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.example.climo.alerts.receiver.AlertReceiver
+import com.example.climo.data.local.ClimoDatabase
 import com.example.climo.data.remote.RetrofitClient
+import com.example.climo.data.repository.WeatherAlertRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -30,7 +32,10 @@ class AlertWorker(context: Context, params: WorkerParameters) : Worker(context, 
             return Result.failure()
         }
         // Fetch weather description
-        var weatherDescription = "Weather data unavailable"
+        val repository = WeatherAlertRepository(ClimoDatabase.getDatabase(applicationContext).weatherAlertDao())
+        var weatherDescription = runBlocking {
+            repository.getWeatherDescription(latitude, longitude)
+        }
         try {
             val response = runBlocking {
                 RetrofitClient.api.getCurrentWeather(

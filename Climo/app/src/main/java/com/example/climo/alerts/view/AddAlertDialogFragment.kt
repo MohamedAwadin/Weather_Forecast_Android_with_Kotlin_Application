@@ -26,6 +26,7 @@ import com.example.climo.alerts.worker.AlertWorker
 import com.example.climo.data.local.ClimoDatabase
 import com.example.climo.data.model.WeatherAlert
 import com.example.climo.data.remote.RetrofitClient
+import com.example.climo.data.repository.WeatherAlertRepository
 import com.example.climo.databinding.FragmentAddAlertDialogBinding
 import com.google.android.material.datepicker.DateSelector
 import kotlinx.coroutines.CoroutineScope
@@ -45,6 +46,7 @@ class AddAlertDialogFragment : DialogFragment() {
     private val viewModel: WeatherAlertsViewModel by viewModels{
         WeatherAlertsViewModelFactory(ClimoDatabase.getDatabase(requireContext()))
     }
+    private lateinit var repository: WeatherAlertRepository
     private var selectedLatitude: Double = 0.0
     private var selectedLongitude: Double = 0.0
     private var fromDateTime: LocalDateTime? = null
@@ -56,6 +58,7 @@ class AddAlertDialogFragment : DialogFragment() {
         savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentAddAlertDialogBinding.inflate(inflater, container, false)
+        repository = WeatherAlertRepository(ClimoDatabase.getDatabase(requireContext()).weatherAlertDao())
         return binding.root
     }
 
@@ -197,7 +200,7 @@ class AddAlertDialogFragment : DialogFragment() {
         CoroutineScope(Dispatchers.Main).launch {
             try {
                 val insertedId = withContext(Dispatchers.IO) {
-                    ClimoDatabase.getDatabase(requireContext()).weatherAlertDao().insert(alert)
+                    repository.insertAlert(alert)
                 }
                 Log.d("AddAlertDialogFragment", "Inserted alert ID: $insertedId")
 

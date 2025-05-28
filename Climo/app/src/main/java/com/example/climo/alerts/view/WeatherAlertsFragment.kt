@@ -52,7 +52,7 @@ class WeatherAlertsFragment : Fragment() {
         )
         binding.alertsRecyclerView.adapter = adapter
 
-        val currentDateTime = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+//        val currentDateTime = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
         viewModel.activeAlerts.observe(viewLifecycleOwner) { alerts ->
             Log.d("WeatherAlertsFragment", "Active alerts updated: $alerts")
             binding.emptyStateText.visibility = if (alerts.isEmpty()) View.VISIBLE else View.GONE
@@ -60,7 +60,7 @@ class WeatherAlertsFragment : Fragment() {
             adapter.submitList(alerts)
         }
 
-        viewModel.cleanupExpiredAlerts(currentDateTime)
+        viewModel.cleanupExpiredAlerts()
 
         binding.addAlertFab.setOnClickListener {
             Log.d("WeatherAlertsFragment", "FAB clicked")
