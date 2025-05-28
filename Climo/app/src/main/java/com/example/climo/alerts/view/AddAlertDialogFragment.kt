@@ -192,27 +192,6 @@ class AddAlertDialogFragment : DialogFragment() {
         ).show()
     }
 
-//    private fun scheduleAlert(alert: WeatherAlert){
-//        val data = androidx.work.Data.Builder()
-//            .putInt("alertId", alert.id)
-//            .putString("cityName", alert.cityName)
-//            .putString("fromDateTime", alert.fromDateTime)
-//            .putString("toDateTime", alert.toDateTime)
-//            .putString("alertType", alert.alertType)
-//            .build()
-//
-//        val fromTime = LocalDateTime.parse(alert.fromDateTime, DateTimeFormatter.ISO_LOCAL_DATE_TIME)
-//        val  delay = Duration.between(LocalDateTime.now(), fromTime).toMillis()
-//        if (delay > 0 ){
-//            val workRequest = OneTimeWorkRequestBuilder<AlertWorker>()
-//                .setInitialDelay(delay , TimeUnit.MILLISECONDS)
-//                .setInputData(data)
-//                .build()
-//
-//            WorkManager.getInstance(requireContext()).enqueue(workRequest)
-//        }
-//    }
-
 
     private fun saveAndScheduleAlert(alert: WeatherAlert) {
         CoroutineScope(Dispatchers.Main).launch {
@@ -229,6 +208,8 @@ class AddAlertDialogFragment : DialogFragment() {
                         .putString("fromDateTime", alert.fromDateTime)
                         .putString("toDateTime", alert.toDateTime)
                         .putString("alertType", alert.alertType)
+                        .putDouble("latitude", alert.latitude)
+                        .putDouble("longitude", alert.longitude)
                         .build()
 
                     val fromTime = LocalDateTime.parse(alert.fromDateTime, DateTimeFormatter.ISO_LOCAL_DATE_TIME)

@@ -1,5 +1,6 @@
 package com.example.climo.data.remote
 
+import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Query
 
@@ -47,5 +48,13 @@ interface WeatherApi {
         @Query("limit") limit: Int = 1,
         @Query("appid") apiKey: String
     ): List<GeocodingResponse>
+
+    @GET("data/2.5/weather")
+    fun getCurrentWeather(
+        @Query("lat") latitude: Double,
+        @Query("lon") longitude: Double,
+        @Query("appid") apiKey: String,
+        @Query("units") units: String = "metric"
+    ): Call<WeatherResponse>
 }
 
